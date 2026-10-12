@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "preferences": {
+    "aspect": {
+      "value": "1080x1920",
+      "confirmed_in": [
+        "grand-milestone-ribbon-cut"
+      ],
+      "updated_at": "2026-10-12T02:59:19.539Z"
+    },
+    "destination": {
+      "value": "instagram-reels-stories",
+      "confirmed_in": [
+        "grand-milestone-ribbon-cut"
+      ],
+      "updated_at": "2026-10-12T02:59:22.755Z"
+    }
+  },
+  "sightings": {}
+}
