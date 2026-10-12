@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rice Wine ABV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Shippori+Mincho+B1:wght@600;800&display=swap">
+<style>
+/* Layout: a brewer's bench sheet. Method chips across the top, readings on the left,
+   a sake tasting cup (janome rings) holding the live result on the right. */
+:root {
+  --paper: #f5f7f6;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586273;
+  --line: #d8dee5;
+  --indigo: #23469a;
+  --indigo-soft: #e7edf9;
+  --koji: #9a6b0c;
+  --koji-soft: #fbf1db;
+  --bad: #a83232;
+  --bad-soft: #fbe9e9;
+  --shadow: 0 1px 2px rgba(24, 32, 44, .06), 0 6px 24px rgba(24, 32, 44, .06);
+
+  --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --step--1: .8125rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+  --step-3: 2.125rem;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1319;
+    --surface: #161c25;
+    --ink: #e6eaf1;
+    --muted: #9ba5b5;
+    --line: #2a3341;
+    --indigo: #8fb0f2;
+    --indigo-soft: #1b2741;
+    --koji: #e2b553;
+    --koji-soft: #2c2412;
+    --bad: #f19494;
+    --bad-soft: #351b1d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1319;
+  --surface: #161c25;
+  --ink: #e6eaf1;
+  --muted: #9ba5b5;
+  --line: #2a3341;
+  --indigo: #8fb0f2;
+  --indigo-soft: #1b2741;
+  --koji: #e2b553;
+  --koji-soft: #2c2412;
+  --bad: #f19494;
+  --bad-soft: #351b1d;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  padding-block: 20px 96px;
+  display: grid;
+  gap: 20px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: var(--step-3); font-weight: 800; letter-spacing: .01em; }
+h2 { font-size: var(--step-2); font-weight: 800; }
+h3 { font-size: var(--step-1); font-weight: 600; }
+p { margin: 0; }
+a { color: var(--indigo); }
+.muted { color: var(--muted); }
+.small { font-size: var(--step--1); }
+.data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 3px solid var(--indigo); outline-offset: 2px; }
+
+/* Header */
+.top { display: grid; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { flex: none; width: 40px; height: 40px; }
+.lede { max-width: 65ch; color: var(--muted); }
+.lede strong { color: var(--ink); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { padding: 4px 14px; border-radius: 999px; cursor: pointer; font-size: var(--step--1); font-weight: 700; color: var(--muted); }
+.seg input:checked + label { background: var(--indigo); color: var(--surface); }
+.seg input:focus-visible + label { outline: 3px solid var(--indigo); outline-offset: 2px; }
+.eyebrow { font-size: var(--step--1); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+
+/* Method chips */
+.methods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.method {
+  appearance: none; text-align: left; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 4px; align-content: start;
+  font: inherit;
+}
+.method:hover { border-color: var(--indigo); }
+.method[aria-selected="true"] { border-color: var(--indigo); box-shadow: inset 0 0 0 1px var(--indigo); background: var(--indigo-soft); }
+.method .m-name { font-weight: 700; line-height: 1.25; }
+.method .m-tools { font-size: var(--step--1); color: var(--muted); }
+.method .m-acc { font-family: var(--font-data); font-size: var(--step--1); color: var(--indigo); }
+
+/* Main grid */
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 20px; align-items: start; }
+.panel { display: grid; gap: 18px; min-width: 0; }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 16px; min-width: 0; }
+.sheet-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; justify-content: space-between; }
+.why { max-width: 65ch; color: var(--muted); }
+
+details.howto { border-top: 1px solid var(--line); padding-top: 12px; }
+details.howto summary { cursor: pointer; font-weight: 700; }
+details.howto ol { margin: 10px 0 0; padding-left: 1.4em; display: grid; gap: 6px; max-width: 65ch; }
+
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+legend { font-weight: 700; padding: 0; margin-bottom: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; }
+.field { display: grid; gap: 4px; flex: 1 1 150px; min-width: 0; }
+.field label { font-size: var(--step--1); font-weight: 700; color: var(--muted); letter-spacing: .02em; }
+.field .hint { font-size: var(--step--1); color: var(--muted); }
+.inp { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); overflow: hidden; }
+.inp:focus-within { border-color: var(--indigo); box-shadow: 0 0 0 2px var(--indigo-soft); }
+.inp input, .inp select {
+  flex: 1 1 auto; min-width: 0; border: 0; background: transparent; color: var(--ink);
+  font-family: var(--font-data); font-size: 1.0625rem; padding: 9px 10px; font-variant-numeric: tabular-nums;
+}
+.inp input:focus, .inp select:focus { outline: none; }
+.inp .unit { flex: none; display: grid; place-items: center; padding: 0 10px; color: var(--muted); font-size: var(--step--1); border-left: 1px solid var(--line); background: var(--surface); }
+select.plain { font-family: var(--font-body); font-size: var(--step-0); }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.check { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--indigo); }
+
+.example {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  background: var(--koji-soft); color: var(--ink); border-radius: 8px; padding: 8px 12px; font-size: var(--step--1);
+}
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 8px; padding: 7px 12px; font: inherit; font-weight: 700; font-size: var(--step--1); cursor: pointer;
+}
+.btn:hover { border-color: var(--indigo); color: var(--indigo); }
+.btn.primary { background: var(--indigo); border-color: var(--indigo); color: var(--surface); }
+.btn.primary:hover { color: var(--surface); filter: brightness(1.08); }
+
+/* Result */
+.result {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 18px; display: grid; gap: 14px; min-width: 0;
+}
+.cup { position: relative; width: min(230px, 100%); aspect-ratio: 1; margin: 0 auto; max-width: 100%; }
+.cup svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cup .bowl { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+.cup .ring { fill: none; stroke: var(--indigo); stroke-width: 13; }
+.cup .read { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 0; }
+.cup .abv { font-family: var(--font-display); font-weight: 800; font-size: 2.875rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.cup .abv-unit { font-size: var(--step--1); color: var(--muted); font-weight: 700; letter-spacing: .06em; margin-top: 4px; }
+.pm { text-align: center; display: grid; gap: 2px; }
+.pm .big { font-family: var(--font-data); font-size: var(--step-1); }
+.status { text-align: center; color: var(--muted); }
+.stats { margin: 0; display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 14px; }
+.stat { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline; }
+.stat dt { color: var(--muted); font-size: var(--step--1); }
+.stat dd { margin: 0; text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.stat dd.sub { grid-column: 1 / -1; text-align: left; font-family: var(--font-body); font-size: var(--step--1); color: var(--muted); }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-family: var(--font-body); font-size: var(--step--1); font-weight: 700; background: var(--indigo-soft); color: var(--indigo); }
+.warns { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.warns li { border-radius: 8px; padding: 8px 10px; font-size: var(--step--1); background: var(--koji-soft); border-left: 4px solid var(--koji); }
+.warns li.bad { background: var(--bad-soft); border-left-color: var(--bad); }
+.result-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* Settings and notes */
+details.settings { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; }
+details.settings > summary { cursor: pointer; font-family: var(--font-display); font-size: var(--step-1); font-weight: 600; }
+.settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; margin-top: 14px; }
+.settings-grid fieldset { border-top: 1px solid var(--line); padding-top: 12px; }
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+.note { display: grid; gap: 6px; max-width: 65ch; }
+.note h3 { font-size: var(--step-0); font-family: var(--font-body); font-weight: 700; }
+.note p { color: var(--muted); }
+footer { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: var(--step--1); display: grid; gap: 6px; max-width: 80ch; }
+
+/* Phone mini bar */
+.minibar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--line); box-shadow: var(--shadow);
+  display: none; align-items: center; justify-content: space-between; gap: 12px;
+}
+.minibar .mb-abv { font-family: var(--font-display); font-weight: 800; font-size: var(--step-2); }
+.minibar .mb-pm { font-family: var(--font-data); color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .result { position: static; }
+  .methods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .settings-grid, .notes { grid-template-columns: minmax(0, 1fr); }
+  .minibar.show { display: flex; }
+}
+@media (max-width: 420px) {
+  h1 { font-size: 1.75rem; }
+  .sheet { padding: 14px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cup .abv { transition: color .2s ease; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18.5" fill="none" stroke="var(--line)" stroke-width="1.5"></circle>
+        <circle cx="20" cy="20" r="15" fill="none" stroke="var(--indigo)" stroke-width="3"></circle>
+        <circle cx="20" cy="20" r="8" fill="none" stroke="var(--indigo)" stroke-width="3"></circle>
+      </svg>
+      <h1>Rice Wine ABV</h1>
+    </div>
+    <p class="lede">Rice wine never has a starting gravity. Koji or nuruk turns starch into sugar while the yeast is already turning that sugar into alcohol, so there is no single moment when all the sugar is in the tank. <strong>Measure the finished wine instead.</strong> Pick a method that uses the instruments you own; you will get alcohol and sweetness together.</p>
+    <div class="toolbar">
+      <span class="eyebrow">Temperature</span>
+      <div class="seg" role="radiogroup" aria-label="Temperature unit">
+        <input type="radio" name="unit" id="unit-c" value="C" checked><label for="unit-c">°C</label>
+        <input type="radio" name="unit" id="unit-f" value="F"><label for="unit-f">°F</label>
+      </div>
+    </div>
+  </header>
+
+  <nav class="methods" role="tablist" aria-label="Measuring method">
+    <button class="method" role="tab" id="tab-combo" aria-controls="panel-combo" data-method="combo" type="button">
+      <span class="m-name">Hydrometer + refractometer</span>
+      <span class="m-tools">5 min · no heating</span>
+      <span class="m-acc">about ±0.6 %</span>
+    </button>
+    <button class="method" role="tab" id="tab-boiloff" aria-controls="panel-boiloff" data-method="boiloff" type="button">
+      <span class="m-name">Boil-off test</span>
+      <span class="m-tools">hydrometer or refractometer · pot · 40 min</span>
+      <span class="m-acc">about ±0.4–0.8 %</span>
+    </button>
+    <button class="method" role="tab" id="tab-boil" aria-controls="panel-boil" data-method="boil" type="button">
+      <span class="m-name">Boiling point</span>
+      <span class="m-tools">0.1° digital thermometer · 15 min</span>
+      <span class="m-acc">about ±0.4 %</span>
+    </button>
+    <button class="method" role="tab" id="tab-distill" aria-controls="panel-distill" data-method="distill" type="button">
+      <span class="m-name">Distill + alcoholmeter</span>
+      <span class="m-tools">small still · alcoholmeter · 45 min</span>
+      <span class="m-acc">about ±0.3 %</span>
+    </button>
+  </nav>
+
+  <div class="grid">
+    <div class="panels">
+      <!-- 1. Hydrometer + refractometer -->
+      <section class="panel" id="panel-combo" role="tabpanel" aria-labelledby="tab-combo" data-method="combo">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Hydrometer + refractometer</h2>
+            <button class="btn" type="button" data-clear="combo">Clear readings</button>
+          </div>
+          <p class="why">Alcohol makes a hydrometer read <em>lower</em> but makes a refractometer read <em>higher</em>. Sugar raises both. Two readings of the same wine pin down both unknowns.</p>
+          <div class="example" data-example="combo" hidden>
+            <span>These are example readings for a 14 % rice wine. Replace them with yours.</span>
+          </div>
+          <fieldset>
+            <legend>Hydrometer</legend>
+            <div class="row">
+              <div class="field">
+                <label for="c-sg">Reading</label>
+                <div class="inp"><input id="c-sg" inputmode="decimal" autocomplete="off" placeholder="0.998"><span class="unit" data-hunit>SG</span></div>
+              </div>
+              <div class="field">
+                <label for="c-t">Sample temperature</label>
+                <div class="inp"><input id="c-t" inputmode="decimal" autocomplete="off" placeholder="20" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Brix refractometer</legend>
+            <div class="row">
+              <div class="field">
+                <label for="c-brix">Reading</label>
+                <div class="inp"><input id="c-brix" inputmode="decimal" autocomplete="off" placeholder="9.4"><span class="unit">°Bx</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <details class="howto" open>
+            <summary>How to measure</summary>
+            <ol>
+              <li>Degas the sample. Pour it back and forth between two cups, or shake it in a half-full closed bottle and vent, until it stops fizzing. Bubbles cling to the hydrometer and make it float high.</li>
+              <li>Let the lees settle, or strain through a coffee filter, and use the clear liquid.</li>
+              <li>Float the hydrometer, spin it to knock off bubbles, and read where the flat liquid surface crosses the scale. Note the sample's temperature.</li>
+              <li>Check the refractometer reads 0.0 with plain water, then put 2–3 drops of the same sample on the prism and read the Brix.</li>
+            </ol>
+          </details>
+        </div>
+      </section>
+
+      <!-- 2. Boil-off -->
+      <section class="panel" id="panel-boiloff" role="tabpanel" aria-labelledby="tab-boiloff" data-method="boiloff" hidden>
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Boil-off test</h2>
+            <button class="btn" type="button" data-clear="boiloff">Clear readings</button>
+          </div>
+          <p class="why">Read the wine, boil the alcohol away, add water back to the original amount and read again. The second sample has the same sugar but no alcohol, so the difference between the two readings is the alcohol. Wine labs call this Tabarié's rule.</p>
+          <div class="example" data-example="boiloff" hidden>
+            <span>These are example readings for a 14 % rice wine. Replace them with yours.</span>
+          </div>
+          <fieldset>
+            <legend>Instruments I'm using</legend>
+            <div class="checks">
+              <label class="check"><input type="checkbox" id="b-usehyd" checked> Hydrometer</label>
+              <label class="check"><input type="checkbox" id="b-useref" checked> Brix refractometer</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Before boiling (the wine)</legend>
+            <div class="row" data-show="hyd">
+              <div class="field">
+                <label for="b-sg1">Hydrometer</label>
+                <div class="inp"><input id="b-sg1" inputmode="decimal" autocomplete="off" placeholder="0.998"><span class="unit" data-hunit>SG</span></div>
+              </div>
+              <div class="field">
+                <label for="b-t1">Temperature</label>
+                <div class="inp"><input id="b-t1" inputmode="decimal" autocomplete="off" placeholder="20" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+            <div class="row" data-show="ref">
+              <div class="field">
+                <label for="b-brix1">Refractometer</label>
+                <div class="inp"><input id="b-brix1" inputmode="decimal" autocomplete="off" placeholder="9.4"><span class="unit">°Bx</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>After boiling and topping back up</legend>
+            <div class="row" data-show="hyd">
+              <div class="field">
+                <label for="b-sg2">Hydrometer</label>
+                <div class="inp"><input id="b-sg2" inputmode="decimal" autocomplete="off" placeholder="1.017"><span class="unit" data-hunit>SG</span></div>
+              </div>
+              <div class="field">
+                <label for="b-t2">Temperature</label>
+                <div class="inp"><input id="b-t2" inputmode="decimal" autocomplete="off" placeholder="20" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+            <div class="row" data-show="ref">
+              <div class="field">
+                <label for="b-brix2">Refractometer</label>
+                <div class="inp"><input id="b-brix2" inputmode="decimal" autocomplete="off" placeholder="4.5"><span class="unit">°Bx</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>How I topped it back up</legend>
+            <div class="checks" role="radiogroup" aria-label="Top-up method">
+              <label class="check"><input type="radio" name="b-restore" id="b-restore-mass" value="mass" checked> To the same weight (kitchen scale)</label>
+              <label class="check"><input type="radio" name="b-restore" id="b-restore-volume" value="volume"> To the same volume (measuring jug)</label>
+            </div>
+            <div class="row" data-show="mass">
+              <div class="field">
+                <label for="b-m0">Weight before boiling</label>
+                <div class="inp"><input id="b-m0" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="unit">g</span></div>
+              </div>
+              <div class="field">
+                <label for="b-m1">Weight after topping up</label>
+                <div class="inp"><input id="b-m1" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="unit">g</span></div>
+              </div>
+            </div>
+            <p class="small muted" data-show="mass">Leave the weights blank if you topped up to exactly the starting weight.</p>
+          </fieldset>
+          <details class="howto" open>
+            <summary>How to measure</summary>
+            <ol>
+              <li>Degas and clear the sample (stir out the fizz, let the lees settle or filter). Read the wine with your hydrometer, refractometer, or both.</li>
+              <li>Put a small pot on a kitchen scale, tare it, and pour in about 250 g of the wine. Write down the weight. Without a scale, measure exactly 250 mL instead.</li>
+              <li>Simmer gently, uncovered, until about half the liquid has evaporated. That drives off more than 99 % of the alcohol. Keep the heat low so nothing scorches.</li>
+              <li>Cool it to room temperature. Add clean water (distilled, or boiled and cooled) until it is back to the starting weight or volume, and stir well.</li>
+              <li>Read the topped-up sample with the same instrument(s).</li>
+            </ol>
+          </details>
+        </div>
+      </section>
+
+      <!-- 3. Boiling point -->
+      <section class="panel" id="panel-boil" role="tabpanel" aria-labelledby="tab-boil" data-method="boil" hidden>
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Boiling point</h2>
+            <button class="btn" type="button" data-clear="boil">Clear readings</button>
+          </div>
+          <p class="why">Alcohol lowers the boiling point: a 12 % wine boils about 8.6 °C below water. Boiling plain water first calibrates your thermometer and today's air pressure, so altitude and weather cancel out. This is how an ebulliometer works.</p>
+          <div class="example" data-example="boil" hidden>
+            <span>These are example readings for a 14 % rice wine. Replace them with yours.</span>
+          </div>
+          <fieldset>
+            <legend>Thermometer</legend>
+            <div class="row">
+              <div class="field">
+                <label for="e-tw">Plain water boils at</label>
+                <div class="inp"><input id="e-tw" inputmode="decimal" autocomplete="off" placeholder="99.6" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+              <div class="field">
+                <label for="e-ts">Wine boils at</label>
+                <div class="inp"><input id="e-ts" inputmode="decimal" autocomplete="off" placeholder="90.0" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="e-dil">Dilution</label>
+                <div class="inp">
+                  <select id="e-dil" class="plain">
+                    <option value="0">None, straight wine</option>
+                    <option value="1">1 part wine + 1 part water</option>
+                    <option value="2">1 part wine + 2 parts water</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="e-brix">Refractometer reading (optional)</label>
+                <div class="inp"><input id="e-brix" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="unit">°Bx</span></div>
+                <span class="hint">Of the undiluted wine. Adds a sugar correction and a sweetness estimate.</span>
+              </div>
+            </div>
+          </fieldset>
+          <details class="howto" open>
+            <summary>How to measure</summary>
+            <ol>
+              <li>Use the same thermometer, pot and heat setting for both tests. A narrow pot or jar works best. A lid with a hole for the probe helps, and a 50 cm tube through the lid acts as a condenser that keeps the alcohol in.</li>
+              <li>Boil plain water and write down the steady boiling temperature.</li>
+              <li>Pour out the water and boil at least 200 mL of degassed wine. Read the lowest steady temperature in the first minute of boiling. It slowly creeps up as the alcohol escapes.</li>
+              <li>Keep the probe tip in the liquid and off the bottom of the pot.</li>
+              <li>If thick or very sweet wine foams or scorches, mix it 1:1 with water and set the dilution above.</li>
+            </ol>
+          </details>
+        </div>
+      </section>
+
+      <!-- 4. Distillation -->
+      <section class="panel" id="panel-distill" role="tabpanel" aria-labelledby="tab-distill" data-method="distill" hidden>
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Distill + alcoholmeter</h2>
+            <button class="btn" type="button" data-clear="distill">Clear readings</button>
+          </div>
+          <p class="why">An alcoholmeter only works in plain alcohol and water. Floated in wine, the sugar makes it read far too low. Distilling a measured sample moves all the alcohol into clean water, where the alcoholmeter reads it correctly. This is the official lab reference method.</p>
+          <div class="example" data-example="distill" hidden>
+            <span>These are example readings for a 14 % rice wine. Replace them with yours.</span>
+          </div>
+          <fieldset>
+            <legend>Volumes</legend>
+            <div class="row">
+              <div class="field">
+                <label for="d-vs">Wine distilled</label>
+                <div class="inp"><input id="d-vs" inputmode="decimal" autocomplete="off" placeholder="100"><span class="unit">mL</span></div>
+              </div>
+              <div class="field">
+                <label for="d-vd">Distillate topped up to</label>
+                <div class="inp"><input id="d-vd" inputmode="decimal" autocomplete="off" placeholder="100"><span class="unit">mL</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Alcoholmeter in the distillate</legend>
+            <div class="row">
+              <div class="field">
+                <label for="d-read">Reading</label>
+                <div class="inp"><input id="d-read" inputmode="decimal" autocomplete="off" placeholder="14.5"><span class="unit" data-aunit>% ABV</span></div>
+              </div>
+              <div class="field">
+                <label for="d-t">Temperature</label>
+                <div class="inp"><input id="d-t" inputmode="decimal" autocomplete="off" placeholder="20" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Hydrometer in the wine (optional, for sweetness)</legend>
+            <div class="row">
+              <div class="field">
+                <label for="d-sg">Reading</label>
+                <div class="inp"><input id="d-sg" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="unit" data-hunit>SG</span></div>
+              </div>
+              <div class="field">
+                <label for="d-sgt">Temperature</label>
+                <div class="inp"><input id="d-sgt" inputmode="decimal" autocomplete="off" placeholder="20" data-temp><span class="unit" data-tunit>°C</span></div>
+              </div>
+            </div>
+          </fieldset>
+          <details class="howto" open>
+            <summary>How to measure</summary>
+            <ol>
+              <li>Measure 100 mL of degassed wine at room temperature in a measuring cylinder. Pour it into the still and rinse the cylinder into it with a splash of water.</li>
+              <li>Distill slowly back into the same cylinder until you have collected about three-quarters of the starting volume. All the alcohol comes over in that part.</li>
+              <li>Top the distillate up with water to the starting volume and mix. Collecting into a smaller final volume, say 50 mL, doubles the reading and makes a coarse alcoholmeter more precise; enter both volumes.</li>
+              <li>Float the alcoholmeter, read it at the flat liquid surface, and note the temperature.</li>
+            </ol>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <aside class="result" id="result" aria-live="polite" aria-label="Result">
+      <span class="eyebrow" id="r-method">Hydrometer + refractometer</span>
+      <div class="cup">
+        <svg viewBox="0 0 240 240" aria-hidden="true">
+          <circle class="bowl" cx="120" cy="120" r="117"></circle>
+          <circle class="ring" cx="120" cy="120" r="99"></circle>
+          <circle class="ring" cx="120" cy="120" r="66"></circle>
+        </svg>
+        <div class="read">
+          <span class="abv" id="r-abv">–</span>
+          <span class="abv-unit">% ABV</span>
+        </div>
+      </div>
+      <div class="pm" id="r-pm" hidden>
+        <span class="big" id="r-pm-big">± 0.6</span>
+        <span class="small muted" id="r-range">likely 13.2 – 14.4 %</span>
+        <span class="small muted" id="r-split">readings ±0.3 · method ±0.5</span>
+      </div>
+      <p class="status small" id="r-status">Enter your readings.</p>
+      <dl class="stats" id="r-stats" hidden>
+        <div class="stat">
+          <dt>Dissolved extract</dt>
+          <dd id="r-extract"></dd>
+          <dd class="sub" id="r-extract-sub"></dd>
+        </div>
+        <div class="stat" id="row-og">
+          <dt>Equivalent starting gravity</dt>
+          <dd id="r-og"></dd>
+          <dd class="sub" id="r-og-sub"></dd>
+        </div>
+        <div class="stat" id="row-smv">
+          <dt>Sake meter value</dt>
+          <dd id="r-smv"></dd>
+          <dd class="sub">Nihonshu-do. Higher is drier.</dd>
+        </div>
+        <div class="stat" id="row-sg">
+          <dt>Wine SG at 20 °C</dt>
+          <dd id="r-sg"></dd>
+        </div>
+      </dl>
+      <ul class="warns" id="r-warns"></ul>
+      <div class="result-actions">
+        <button class="btn" type="button" id="r-copy" disabled>Copy result</button>
+      </div>
+    </aside>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary>Instrument settings</summary>
+    <div class="settings-grid">
+      <fieldset>
+        <legend>Hydrometer</legend>
+        <div class="field">
+          <label for="s-hscale">Scale</label>
+          <div class="inp">
+            <select id="s-hscale" class="plain">
+              <option value="sg20">Specific gravity, calibrated 20 °C</option>
+              <option value="sg15">Specific gravity, calibrated 15.6 °C / 60 °F</option>
+              <option value="density20">Density g/mL, calibrated 20 °C</option>
+              <option value="smv15">Sake meter value (Nihonshu-do), 15 °C</option>
+              <option value="brix20">°Brix / °Plato scale, 20 °C</option>
+            </select>
+          </div>
+          <span class="hint">The calibration temperature is printed on the hydrometer or its paper insert.</span>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="s-hcorr">Correction to add</label>
+            <div class="inp"><input id="s-hcorr" inputmode="decimal" autocomplete="off" placeholder="0"><span class="unit" data-hunit>SG</span></div>
+            <span class="hint">Float it in plain water at its calibration temperature. If an SG hydrometer shows 1.002 there, enter −0.002.</span>
+          </div>
+          <div class="field">
+            <label for="s-hprec">Reading precision</label>
+            <div class="inp"><input id="s-hprec" inputmode="decimal" autocomplete="off" placeholder="0.0005"><span class="unit" data-hunit>SG</span></div>
+            <span class="hint">Half the smallest division is typical.</span>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Brix refractometer</legend>
+        <div class="row">
+          <div class="field">
+            <label for="s-rzero">Reads in plain water</label>
+            <div class="inp"><input id="s-rzero" inputmode="decimal" autocomplete="off" placeholder="0.0"><span class="unit">°Bx</span></div>
+          </div>
+          <div class="field">
+            <label for="s-rprec">Reading precision</label>
+            <div class="inp"><input id="s-rprec" inputmode="decimal" autocomplete="off" placeholder="0.2"><span class="unit">°Bx</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-wcf">Extract factor</label>
+          <div class="inp"><input id="s-wcf" inputmode="decimal" autocomplete="off" placeholder="1.00"></div>
+          <span class="hint">1.00 for rice wine, sake and grape wine (glucose-type sugars). Beer wort is usually 1.04.</span>
+        </div>
+        <p class="small muted">Optional alcohol check: mix vodka or soju with water to a known strength (1 part 40 % spirit + 3 parts water ≈ 10 %) and read it.</p>
+        <div class="row">
+          <div class="field">
+            <label for="s-testabv">Test mix strength</label>
+            <div class="inp"><input id="s-testabv" inputmode="decimal" autocomplete="off" placeholder="10"><span class="unit">% ABV</span></div>
+          </div>
+          <div class="field">
+            <label for="s-testbrix">It reads</label>
+            <div class="inp"><input id="s-testbrix" inputmode="decimal" autocomplete="off" placeholder="3.5"><span class="unit">°Bx</span></div>
+          </div>
+        </div>
+        <p class="small" id="s-testout" aria-live="polite"></p>
+      </fieldset>
+      <fieldset>
+        <legend>Alcoholmeter</legend>
+        <div class="field">
+          <label for="s-ascale">Scale</label>
+          <div class="inp">
+            <select id="s-ascale" class="plain">
+              <option value="abv20">% ABV, calibrated 20 °C</option>
+              <option value="abv15">% ABV, calibrated 15.6 °C / 60 °F</option>
+              <option value="proof60">US proof, 60 °F</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-aprec">Reading precision</label>
+          <div class="inp"><input id="s-aprec" inputmode="decimal" autocomplete="off" placeholder="0.5"><span class="unit" data-aunit>% ABV</span></div>
+          <span class="hint">0.5 for the common 0–100 % meter with 1 % marks.</span>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Thermometer</legend>
+        <div class="field">
+          <label for="s-tprec">Reading precision</label>
+          <div class="inp"><input id="s-tprec" inputmode="decimal" autocomplete="off" placeholder="0.1"><span class="unit" data-tunit>°C</span></div>
+          <span class="hint">Used for the boiling-point method. A 0.1° digital probe is enough.</span>
+        </div>
+        <button class="btn" type="button" id="s-reset">Reset settings</button>
+      </fieldset>
+    </div>
+  </details>
+
+  <section class="notes" aria-label="Good to know">
+    <div class="note">
+      <h3>Why the hydrometer's alcohol scale can't help</h3>
+      <p>The "potential alcohol" scale on a triple-scale hydrometer assumes you read it before fermentation started. With rice wine, sugar is made and eaten at the same time, so that reading never exists.</p>
+    </div>
+    <div class="note">
+      <h3>Cloudy wine</h3>
+      <p>Makgeolli, tapai, nigori and other unfiltered styles carry rice solids. They don't change the alcohol, but they make hydrometers float high and blur refractometer lines. Let the jar settle in the fridge, or filter a sample, then bring it back to room temperature.</p>
+    </div>
+    <div class="note">
+      <h3>Temperature</h3>
+      <p>Read hydrometers and alcoholmeters as close to their calibration temperature as you can. The app corrects the difference with the same formula used for the international alcohol tables, but readings between 15 and 25 °C are the most reliable.</p>
+    </div>
+    <div class="note">
+      <h3>Vinometers</h3>
+      <p>Capillary vinometers only work in dry, clear wine. Sugar changes the surface tension they rely on, so they read badly wrong in most rice wines.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>How it works: the wine is modelled as an alcohol–water mix plus a sugar solution (Tabarié's rule), and the alcohol and extract that best fit all your readings are found by least squares. The ± figure combines your instruments' reading precision with the typical error of the method.</p>
+    <p>Data: alcohol–water density from the OIML R22 International Alcoholometric Tables formula; sugar density (ASBC) and refractive index (ICUMSA); alcohol refractive index from the CRC Handbook; boiling points from an NRTL vapour–liquid model fitted to a wine-lab ebulliometer table.</p>
+  </footer>
+</div>
+
+<div class="minibar" id="minibar" aria-hidden="true">
+  <div><span class="mb-abv" id="mb-abv">–</span> <span class="small muted">% ABV</span> <span class="mb-pm" id="mb-pm"></span></div>
+  <button class="btn primary" type="button" id="mb-go" tabindex="-1">Details</button>
+</div>
+
+<script src="abv.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
