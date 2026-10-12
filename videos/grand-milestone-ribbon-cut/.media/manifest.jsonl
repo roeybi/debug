@@ -1,1 +1,7 @@
 {"id":"image_001","type":"image","path":"assets/grand-milestone-stand.webp","source":"existing","description":"grand milestone stand","width":1080,"height":1080,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_001","type":"bgm","path":"assets/audio/score.wav","source":"existing","description":"score","duration":10,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_002","type":"bgm","path":"assets/audio/sfx-impact-bass-1.mp3","source":"existing","description":"sfx impact bass 1","duration":2.1,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_003","type":"bgm","path":"assets/audio/sfx-riser.mp3","source":"existing","description":"sfx riser","duration":10,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_004","type":"bgm","path":"assets/audio/sfx-sparkle.mp3","source":"existing","description":"sfx sparkle","duration":1.8,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_005","type":"bgm","path":"assets/audio/sfx-whoosh-short.mp3","source":"existing","description":"sfx whoosh short","duration":0.6,"provenance":{"provider":"local","adopted":true}}
+{"id":"bgm_006","type":"bgm","path":"assets/audio/snip.wav","source":"existing","description":"snip","duration":0.7,"provenance":{"provider":"local","adopted":true}}

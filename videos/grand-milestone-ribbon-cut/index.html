@@ -45,6 +45,17 @@
         data-width="1080"
         data-height="1920"
       ></div>
+
+      <!-- Music: original score, timed to the picture (track 1) -->
+      <audio id="score" src="assets/audio/score.wav" data-start="0" data-duration="10" data-track-index="1" data-volume="0.8"></audio>
+
+      <!-- Sound design (tracks 2-4) -->
+      <audio id="sfx-ribbon-whoosh" src="assets/audio/sfx-whoosh-short.mp3" data-start="0.08" data-duration="0.57" data-track-index="2" data-volume="0.45"></audio>
+      <audio id="sfx-scissors-glide" src="assets/audio/sfx-whoosh-short.mp3" data-start="1.75" data-duration="0.57" data-track-index="2" data-volume="0.22"></audio>
+      <audio id="sfx-riser" src="assets/audio/sfx-riser.mp3" data-start="1.21" data-media-start="2.4" data-duration="1.72" data-track-index="3" data-volume="0.3"></audio>
+      <audio id="sfx-snip" src="assets/audio/snip.wav" data-start="2.895" data-duration="0.6" data-track-index="4" data-volume="0.7"></audio>
+      <audio id="sfx-impact" src="assets/audio/sfx-impact-bass-1.mp3" data-start="2.95" data-duration="2.1" data-track-index="2" data-volume="0.42"></audio>
+      <audio id="sfx-sparkle" src="assets/audio/sfx-sparkle.mp3" data-start="2.98" data-duration="1.8" data-track-index="3" data-volume="0.45"></audio>
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });

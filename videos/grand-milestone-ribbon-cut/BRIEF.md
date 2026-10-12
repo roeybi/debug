@@ -23,7 +23,8 @@ Product copy (user-supplied): "Celebrate a grand opening with an elegant floral 
 
 ## Customizations
 
-- Silent (no music bed) — built to read without sound.
+- Music design (added on request): original score synthesized by `audio-src/score.py` — hushed B-minor build with celesta motif, silence before the snip, D-major bloom + bell cascade at the cut, harp arpeggio under the copy (Gmaj7/D → Em9/D → Asus4–A), bell sting resolving to D on the brand. Re-generate with `python3 audio-src/score.py <dir>` then `loudnorm I=-16 TP=-1.5`.
+- Sound design: synthesized scissors snip (assets/audio/snip.wav) + bundled Pixabay-licensed SFX (whoosh ×2, riser into the cut, bass impact, sparkle burst). Final mix ≈ -15.8 LUFS, peak -1.4 dBFS.
 - Film grain + warm light bloom/sweep at the reveal (techniques from registry grain-overlay, iris-reveal, light-sweep-pass).
 
 ## Notes
